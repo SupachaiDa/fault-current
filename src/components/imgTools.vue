@@ -3,12 +3,13 @@
 <div class="input">
 <h5>Zf</h5><input v-model="xFault" type="h">
 </div>
+<h3>Fault Current = {{this.faultCurrent}} pu</h3>
     <div class="container">
   <div class="row">
     <div class="col-sm">
       <h5>Bus 0</h5>
       <div class="form-check">
-  <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+  <input v-model="selectedRadio" value="0" class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
   <label class="form-check-label" for="flexRadioDefault1">
     Fault
   </label>
@@ -30,8 +31,8 @@
      <div class="col-sm">
       <h5>Bus 1</h5>
       <div class="form-check">
-  <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-  <label class="form-check-label" for="flexRadioDefault1">
+  <input v-model="selectedRadio" value="1"  class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2">
+  <label class="form-check-label" for="flexRadioDefault2">
     Fault
   </label>
 </div>
@@ -52,8 +53,8 @@
      <div class="col-sm">
       <h5>Bus 2</h5>
       <div class="form-check">
-  <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-  <label class="form-check-label" for="flexRadioDefault1">
+  <input v-model="selectedRadio" value="2" class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault3">
+  <label class="form-check-label" for="flexRadioDefault3">
     Fault
   </label>
 </div>
@@ -74,8 +75,8 @@
      <div class="col-sm">
       <h5>Bus 3</h5>
       <div class="form-check">
-  <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-  <label class="form-check-label" for="flexRadioDefault1">
+  <input v-model="selectedRadio" value="3" class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault4">
+  <label class="form-check-label" for="flexRadioDefault4">
    Fault
   </label>
 </div>
@@ -96,8 +97,8 @@
      <div class="col-sm">
       <h5>Bus 4</h5>
       <div class="form-check">
-  <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-  <label class="form-check-label" for="flexRadioDefault1">
+  <input v-model="selectedRadio" value="4" class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault5">
+  <label class="form-check-label" for="flexRadioDefault5">
     Fault
   </label>
 </div>
@@ -118,7 +119,7 @@
      <div class="col-sm">
       <h5>Bus 5</h5>
       <div class="form-check">
-  <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+  <input v-model="selectedRadio" value="5" class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
   <label class="form-check-label" for="flexRadioDefault1">
     Fault
   </label>
@@ -137,9 +138,9 @@
   </select>
 </div>
 <div class="input">
-  <h5>X0</h5><input v-model="xFirst[0]" type="h">
-  <h5>X1</h5><input v-model="xFirst[1]" type="h">
-  <h5>X2</h5><input v-model="xFirst[2]" type="h">
+<h5>X0</h5><input v-model="x[0][0]" type="Float">
+  <h5>X1</h5><input v-model="x[0][1]" type="Float">
+  <h5>X2</h5><input v-model="x[0][2]" type="Float">
 </div>
 <div class="input-group mb-3">
   <div class="input-group-prepend">
@@ -153,9 +154,9 @@
   </select>
 </div>
 <div class="input">
-  <h5>X0</h5><input v-model="xSecond[0]" type="h">
-  <h5>X1</h5><input v-model="xSecond[1]" type="h">
-  <h5>X2</h5><input v-model="xSecond[2]" type="h">
+ <h5>X0</h5><input v-model="x[1][0]" type="Float">
+  <h5>X1</h5><input v-model="x[1][1]" type="Float">
+  <h5>X2</h5><input v-model="x[1][2]" type="Float">
 </div>
 <div class="input-group mb-3">
   <div class="input-group-prepend">
@@ -169,9 +170,9 @@
   </select>
 </div>
 <div class="input">
-  <h5>X0</h5><input v-model="xThird[0]" type="h">
-  <h5>X1</h5><input v-model="xThird[1]" type="h">
-  <h5>X2</h5><input v-model="xThird[2]" type="h">
+  <h5>X0</h5><input v-model="x[2][0]" type="Float">
+  <h5>X1</h5><input v-model="x[2][1]" type="Float">
+  <h5>X2</h5><input v-model="x[2][2]" type="Float">
 </div>
 <div class="input-group mb-3">
   <div class="input-group-prepend">
@@ -185,9 +186,9 @@
   </select>
 </div>
 <div class="input">
-  <h5>X0</h5><input v-model="xFourth[0]" type="h">
-  <h5>X1</h5><input v-model="xFourth[1]" type="h">
-  <h5>X2</h5><input v-model="xFourth[2]" type="h">
+  <h5>X0</h5><input v-model="x[3][0]" type="Float">
+  <h5>X1</h5><input v-model="x[3][1]" type="Float">
+  <h5>X2</h5><input v-model="x[3][2]" type="Float">
 </div>
 <div class="input-group mb-3">
   <div class="input-group-prepend">
@@ -201,9 +202,9 @@
   </select>
 </div>
 <div class="input">
-  <h5>X0</h5><input v-model="xFifth[0]" type="h">
-  <h5>X1</h5><input v-model="xFifth[1]" type="h">
-  <h5>X2</h5><input v-model="xFifth[2]" type="h">
+  <h5>X0</h5><input v-model="x[4][0]" type="Float">
+  <h5>X1</h5><input v-model="x[4][1]" type="Float">
+  <h5>X2</h5><input v-model="x[4][2]" type="Float">
 </div>
 </div>
 </template>
@@ -214,7 +215,7 @@ const transformerUrl = require('../assets/img_transformer.jpeg')
 export default {
   name: 'ImgTools',
   mounted() {
-  },
+  }, /* eslint-disable */
   data() {
     return {
       selected1: null,
@@ -224,14 +225,27 @@ export default {
       selected5: null,
       imgGen: generatorUrl,
       imgCable: cableUrl,
-      imgTransformer: transformerUrl,
-      xFirst: [0, 0, 0],
-      xSecond: [0, 0, 0],
-      xThird: [0, 0, 0],
-      xFourth: [0, 0, 0],
-      xFifth: [0, 0, 0],
-      xFault: 0
+      imgTransformer: transformerUrl, 
+      x: [[0, parseFloat(0), 0], [0, parseFloat(0), 0], [0, parseFloat(0), 0], [0, parseFloat(0), 0], [0, parseFloat(0), 0]], 
+      xFault: 0,
+        selectedRadio: 0
     }
+  },
+  computed: {
+    xTotal1: {
+     get() {
+        let xTotal = 0
+        for(let i = 0; i < this.selectedRadio; i++) {
+          xTotal += parseFloat(this.x[i][1])
+        }
+        return parseFloat(xTotal).toFixed(2)
+    }
+  },
+  faultCurrent: {
+    get() {
+      return parseFloat(1/(this.xTotal1+parseFloat(this.xFault))).toFixed(2)
+    }
+  }
   }
 }
 </script>
