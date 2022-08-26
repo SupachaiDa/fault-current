@@ -4,6 +4,7 @@
 <h5>Zf</h5><input v-model="xFault" type="h">
 </div>
 <h3>Fault Current = {{this.faultCurrent}} pu</h3>
+<h3>largestNum = {{this.largestNum}}</h3>
     <div class="container">
   <div class="row">
     <div class="col-sm">
@@ -17,13 +18,13 @@
     </div>
     <div class="col-sm">
       <div class="box">
-        <div v-if="selected1 === 'generator'">
+        <div v-if="selected[0] === 'generator'">
           <img v-bind:src="imgGen" alt="">
         </div>
-        <div v-else-if="selected1 === 'cable'">
+        <div v-else-if="selected[0] === 'cable'">
           <img v-bind:src="imgCable" alt="">
         </div>
-        <div v-else-if="selected1 === 'transformer'">
+        <div v-else-if="selected[0] === 'transformer'">
           <img v-bind:src="imgTransformer" alt="">
         </div>
       </div>
@@ -39,13 +40,13 @@
     </div>
     <div class="col-sm">
       <div class="box">
-           <div v-if="selected2 === 'generator'">
+           <div v-if="selected[1] === 'generator'">
           <img v-bind:src="imgGen" alt="">
         </div>
-        <div v-else-if="selected2 === 'cable'">
+        <div v-else-if="selected[1] === 'cable'">
           <img v-bind:src="imgCable" alt="">
         </div>
-        <div v-else-if="selected2 === 'transformer'">
+        <div v-else-if="selected[1] === 'transformer'">
           <img v-bind:src="imgTransformer" alt="">
         </div>
       </div>
@@ -61,13 +62,13 @@
     </div>
     <div class="col-sm">
       <div class="box">
-         <div v-if="selected3 === 'generator'">
+         <div v-if="selected[2] === 'generator'">
           <img v-bind:src="imgGen" alt="">
         </div>
-        <div v-else-if="selected3 === 'cable'">
+        <div v-else-if="selected[2] === 'cable'">
           <img v-bind:src="imgCable" alt="">
         </div>
-        <div v-else-if="selected3 === 'transformer'">
+        <div v-else-if="selected[2] === 'transformer'">
           <img v-bind:src="imgTransformer" alt="">
         </div>
       </div>
@@ -83,13 +84,13 @@
     </div>
     <div class="col-sm">
       <div class="box">
-         <div v-if="selected4 === 'generator'">
+         <div v-if="selected[3] === 'generator'">
           <img v-bind:src="imgGen" alt="">
         </div>
-        <div v-else-if="selected4 === 'cable'">
+        <div v-else-if="selected[3] === 'cable'">
           <img v-bind:src="imgCable" alt="">
         </div>
-        <div v-else-if="selected4 === 'transformer'">
+        <div v-else-if="selected[3] === 'transformer'">
           <img v-bind:src="imgTransformer" alt="">
         </div>
       </div>
@@ -105,13 +106,13 @@
     </div>
     <div class="col-sm">
       <div class="box">
-         <div v-if="selected5 === 'generator'">
+         <div v-if="selected[4] === 'generator'">
           <img v-bind:src="imgGen" alt="">
         </div>
-        <div v-else-if="selected5 === 'cable'">
+        <div v-else-if="selected[4] === 'cable'">
           <img v-bind:src="imgCable" alt="">
         </div>
-        <div v-else-if="selected5 === 'transformer'">
+        <div v-else-if="selected[4] === 'transformer'">
           <img v-bind:src="imgTransformer" alt="">
         </div>
       </div>
@@ -130,7 +131,7 @@
   <div class="input-group-prepend">
     <label class="input-group-text" for="inputGroupSelect01">1</label>
   </div>
-  <select v-model="selected1" class="custom-select" id="inputGroupSelect01">
+  <select v-model="selected[0]" class="custom-select" id="inputGroupSelect01">
     <option selected>Choose...</option>
     <option value="generator">Generator</option>
     <option value="cable">Cable</option>
@@ -146,7 +147,7 @@
   <div class="input-group-prepend">
     <label class="input-group-text" for="inputGroupSelect01">2</label>
   </div>
-  <select v-model="selected2" class="custom-select" id="inputGroupSelect01">
+  <select v-model="selected[1]" class="custom-select" id="inputGroupSelect01">
     <option selected>Choose...</option>
     <option value="generator">Generator</option>
     <option value="cable">Cable</option>
@@ -162,7 +163,7 @@
   <div class="input-group-prepend">
     <label class="input-group-text" for="inputGroupSelect01">3</label>
   </div>
-  <select v-model="selected3" class="custom-select" id="inputGroupSelect01">
+  <select v-model="selected[2]" class="custom-select" id="inputGroupSelect01">
     <option selected>Choose...</option>
     <option value="generator">Generator</option>
     <option value="cable">Cable</option>
@@ -178,7 +179,7 @@
   <div class="input-group-prepend">
     <label class="input-group-text" for="inputGroupSelect01">4</label>
   </div>
-  <select v-model="selected4" class="custom-select" id="inputGroupSelect01">
+  <select v-model="selected[3]" class="custom-select" id="inputGroupSelect01">
     <option selected>Choose...</option>
     <option value="generator">Generator</option>
     <option value="cable">Cable</option>
@@ -194,7 +195,7 @@
   <div class="input-group-prepend">
     <label class="input-group-text" for="inputGroupSelect01">5</label>
   </div>
-  <select v-model="selected5" class="custom-select" id="inputGroupSelect01">
+  <select v-model="selected[4]" class="custom-select" id="inputGroupSelect01">
     <option selected>Choose...</option>
     <option value="generator">Generator</option>
     <option value="cable">Cable</option>
@@ -218,32 +219,63 @@ export default {
   }, /* eslint-disable */
   data() {
     return {
-      selected1: null,
-      selected2: null,
-      selected3: null,
-      selected4: null,
-      selected5: null,
+      selected: [null, null, null, null, null],
       imgGen: generatorUrl,
       imgCable: cableUrl,
       imgTransformer: transformerUrl, 
       x: [[0, parseFloat(0), 0], [0, parseFloat(0), 0], [0, parseFloat(0), 0], [0, parseFloat(0), 0], [0, parseFloat(0), 0]], 
       xFault: 0,
-        selectedRadio: 0
+      selectedRadio: 0,
     }
   },
   computed: {
-    xTotal1: {
+    genPosition: {
+      get() {
+        let genPs = []
+        for(let i = 0; i < 5; i++) {
+          if (this.selected[i] === 'generator') {
+            genPs.push(i)
+          }
+         }
+        return genPs
+      }
+    },
+    largestNum: {
+      get() {
+        let largestN
+        for(let i = 0; i < this.genPosition.length; i ++) {
+          if(this.genPosition[i] < this.genPosition[i+1]) {
+            largestN = this.genPosition[i+1]
+          }
+        }
+        return parseInt(largestN)
+      }
+    },
+    xTotalPositive: {
      get() {
         let xTotal = 0
+        let xTotal1 = 0
+        let xTotal2 = 0
+        if(this.largestNum > this.selectedRadio) { // In case the system has more than two generators that the fault location is being between two of them
         for(let i = 0; i < this.selectedRadio; i++) {
+          xTotal1 += parseFloat(this.x[i][1])
+        }
+         for(let i = this.selectedRadio; i <= this.largestNum; i++) {
+          xTotal2 += parseFloat(this.x[i][1])
+        }
+         xTotal = (parseFloat(xTotal).toFixed(2)*parseFloat(xTotal2).toFixed(2))/(parseFloat(xTotal1).toFixed(2)+parseFloat(xTotal2).toFixed(2)) //sum resistor for each side in serie method, and after that sum both of them in parallel method
+         
+        }else { // In case the generator is situated before or after fault location
+          for(let i = 0; i < this.selectedRadio; i++) {
           xTotal += parseFloat(this.x[i][1])
+        }
         }
         return parseFloat(xTotal).toFixed(2)
     }
   },
   faultCurrent: {
     get() {
-      return parseFloat(1/(this.xTotal1+parseFloat(this.xFault))).toFixed(2)
+      return parseFloat(1/(this.xTotalPositive+parseFloat(this.xFault))).toFixed(2)
     }
   }
   }
