@@ -403,7 +403,7 @@ export default {
           }
           this.selected2.push(newArray);
         }
-        return this.selected2; //kuy
+        return this.selected2; //kuy mark
       },
     },
     yMetrixNegative: {
