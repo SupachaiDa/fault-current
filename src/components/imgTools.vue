@@ -1,395 +1,563 @@
 <template>
-<div class="input">
-<h5>Zf</h5><input v-model="rFault" type="Float"><h5>ohm&ensp;</h5>
-<h5>S (Base)</h5><input v-model="sBase" type="Float"><h5>MVA&ensp;</h5>
-<h5>V (Base)</h5><input v-model="vBase" type="Float"><h5>V&ensp;</h5>
-</div>
-<h3>Fault Current (3 Phase) &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; I(1) = {{this.threePhaseFaultCurrent}} pu</h3>
-<h3>Fault Current (Single line to ground) I(1) = {{this.singleLineFaultCurrent}} pu&ensp;=&ensp;I(2)&ensp;=&ensp;I(0)</h3>
-<h3>Fault Current (Line to line)&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; I(1) = {{this.linetoLineFaultCurrent}}</h3>
-<h3>Fault Current (Double line to ground) I(1) = {{this.doubleLineFaultCurrent}}</h3>
-    <div class="container">
-  <div class="row">
-    <div class="col-sm">
-      <h5>Bus 0</h5>
-      <div class="form-check">
-  <input v-model="selectedRadio" value="0" class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-  <label class="form-check-label" for="flexRadioDefault1">
-    Fault
-  </label>
-</div>
-    </div>
-    <div class="col-sm">
-      <div class="box">
-        <div v-if="selected[0] === 'generator'">
-          <img v-bind:src="imgGen" alt="">
+  <div>
+    <!-- Enter the nuber of bus that the user want to calculate (INT Input) -->
+    <h5>Number of Bus (maximum 30 buses)</h5>
+    <input type="Int" v-model="totalBus" />
+     <!-- Enter Base Value -->
+    <h5>S(Base) MVA</h5>
+    <input type="Float" v-model="this.sBase"/>
+    <h5>V(Base) kV</h5>
+    <input type="Float" v-model="this.vBase"/>
+    <!-- ****************************************************** -->
+    <!-- After enter the number of bus the user has to press submit button to show calculating results -->
+    <button v-on:click="this.selected_to_show = true"><h5>submit</h5></button>
+    <div v-if="this.selected_to_show === true && this.totalBus <= 30">
+       <!-- Recieving Positive Impedance between Bus -->
+      <h5>Enter the Impedance (Positive) between each bus</h5>
+      <div class="input" v-for="(n, x) in parseInt(this.totalBus)" :key="x">
+        <div v-for="(n, y) in x + 1" :key="y">
+          <div v-if="x != y">
+            <h5>Bus {{ x + 1 }}-{{ y + 1 }}</h5>
+            <input
+              type="Float"
+              v-model="this.allBusPositive[parseInt(x)][parseInt(y)]"
+            />
+        <div class="input-group mb-3">
+         <div class="input-group-prepend">
+            <label class="input-group-text" for="inputGroupSelect01">1</label>
+          </div>
+         <select v-model="this.allBusPositiveSelected[parseInt(x)][parseInt(y)]" class="custom-select" id="inputGroupSelect01">
+             <option selected>Choose...</option>
+             <option value="generator">Generator</option>
+             <option value="cable">Cable</option>
+             <option value="transformerDD">Transformer(Delta-Delta)</option>
+             <option value="transformerYYGround">Transformer(Wye-WyeGround)</option>
+             <option value="transformerYGroundYGround">Transformer(WyeGround-WyeGround)</option>
+             <option value="transformerYroundD">Transformer(WyeGround-Delta)</option>
+             <option value="transformerDY">Transformer(Delta-Wye)</option>
+         </select>
         </div>
-        <div v-else-if="selected[0] === 'cable'">
-          <img v-bind:src="imgCable" alt="">
-        </div>
-        <div v-else-if="selected[0] === 'transformer'">
-          <img v-bind:src="imgTransformer" alt="">
-        </div>
-      </div>
-    </div>
-     <div class="col-sm">
-      <h5>Bus 1</h5>
-      <div class="form-check">
-  <input v-model="selectedRadio" value="1"  class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2">
-  <label class="form-check-label" for="flexRadioDefault2">
-    Fault
-  </label>
-</div>
-    </div>
-    <div class="col-sm">
-      <div class="box">
-           <div v-if="selected[1] === 'generator'">
-          <img v-bind:src="imgGen" alt="">
-        </div>
-        <div v-else-if="selected[1] === 'cable'">
-          <img v-bind:src="imgCable" alt="">
-        </div>
-        <div v-else-if="selected[1] === 'transformer'">
-          <img v-bind:src="imgTransformer" alt="">
+          </div>
         </div>
       </div>
-    </div>
-     <div class="col-sm">
-      <h5>Bus 2</h5>
-      <div class="form-check">
-  <input v-model="selectedRadio" value="2" class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault3">
-  <label class="form-check-label" for="flexRadioDefault3">
-    Fault
-  </label>
-</div>
-    </div>
-    <div class="col-sm">
-      <div class="box">
-         <div v-if="selected[2] === 'generator'">
-          <img v-bind:src="imgGen" alt="">
+       <!-- ****************************************************** -->
+       <!-- Recieving Positive Impedance for Generator -->
+      <div class="genBus" v-for="(n, x) in parseInt(this.totalBus)" :key="x">
+        <h5>Gen Bus 0-{{ x + 1 }}</h5>
+        <input type="Float" v-model="this.genBusPositive[x]" />
+          <h5>Ground</h5>
+             <input
+              type="Float"
+              v-model="this.ground1[x]"
+            />
+      </div>
+      <!-- ****************************************************** -->
+      <!-- Showing Y Bus result (Positive) -->
+      <h5>****** Y BUS Positive ******</h5>
+      <div class="input" v-for="(n, x) in parseInt(this.totalBus)" :key="x">
+        <h5>{{ this.yMetrixPositive[x] }}</h5>
+        <h5>,length of array = {{ this.yMetrixPositive[x].length }}</h5>
+      </div>
+      <h5>length of array = {{ this.yMetrixPositive.length }}</h5>
+      <h5>*******************************************</h5>
+      <!-- ******************///////////************************* -->
+      <!-- ******************///////////************************* -->
+          <!-- Recieving Negative Impedance between Bus -->
+      <h5>Enter the Impedance (Negative) between each bus</h5>
+      <div class="input" v-for="(n, x) in parseInt(this.totalBus)" :key="x">
+        <div v-for="(n, y) in x + 1" :key="y">
+          <div v-if="x != y">
+            <h5>Bus {{ x + 1 }}-{{ y + 1 }}</h5>
+            <input
+              type="Float"
+              v-model="this.allBusNegative[parseInt(x)][parseInt(y)]"
+            />
+             <div class="input-group mb-3">
+         <div class="input-group-prepend">
+            <label class="input-group-text" for="inputGroupSelect01">1</label>
+          </div>
+         <select v-model="this.allBusNegativeSelected[parseInt(x)][parseInt(y)]" class="custom-select" id="inputGroupSelect01">
+             <option selected>Choose...</option>
+             <option value="generator">Generator</option>
+             <option value="cable">Cable</option>
+             <option value="transformerDD">Transformer(Delta-Delta)</option>
+             <option value="transformerYYGround">Transformer(Wye-WyeGround)</option>
+             <option value="transformerYGroundYGround">Transformer(WyeGround-WyeGround)</option>
+             <option value="transformerYroundD">Transformer(WyeGround-Delta)</option>
+             <option value="transformerDY">Transformer(Delta-Wye)</option>
+         </select>
         </div>
-        <div v-else-if="selected[2] === 'cable'">
-          <img v-bind:src="imgCable" alt="">
-        </div>
-        <div v-else-if="selected[2] === 'transformer'">
-          <img v-bind:src="imgTransformer" alt="">
+          </div>
         </div>
       </div>
-    </div>
-     <div class="col-sm">
-      <h5>Bus 3</h5>
-      <div class="form-check">
-  <input v-model="selectedRadio" value="3" class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault4">
-  <label class="form-check-label" for="flexRadioDefault4">
-   Fault
-  </label>
-</div>
-    </div>
-    <div class="col-sm">
-      <div class="box">
-         <div v-if="selected[3] === 'generator'">
-          <img v-bind:src="imgGen" alt="">
+       <!-- ****************************************************** -->
+       <!-- Recieving Negative Impedance for Generator -->
+      <div class="genBus" v-for="(n, x) in parseInt(this.totalBus)" :key="x">
+        <h5>Gen Bus 0-{{ x + 1 }}</h5>
+        <input type="Float" v-model="this.genBusNegative[x]" />
+          <h5>Ground</h5>
+             <input
+              type="Float"
+              v-model="this.ground2[x]"
+            />
+      </div>
+      <!-- ****************************************************** -->
+      <!-- Showing Y Bus result (Negative) -->
+      <h5>****** Y BUS Negative ******</h5>
+      <div class="input" v-for="(n, x) in parseInt(this.totalBus)" :key="x">
+        <h5>{{ this.yMetrixNegative[x] }}</h5>
+        <h5>,length of array = {{ this.yMetrixNegative[x].length }}</h5>
+      </div>
+      <h5>length of array = {{ this.yMetrixNegative.length }}</h5>
+      <h5>*******************************************</h5>
+      <!-- ******************///////////************************* -->
+      <!-- ******************///////////************************* -->
+        <!-- Recieving Zero Impedance between Bus -->
+      <h5>Enter the Impedance (Zero) between each bus</h5>
+      <div class="input" v-for="(n, x) in parseInt(this.totalBus)" :key="x">
+        <div v-for="(n, y) in x + 1" :key="y">
+          <div v-if="x != y">
+            <h5>Bus {{ x + 1 }}-{{ y + 1 }}</h5>
+            <input
+              type="Float"
+              v-model="this.allBusZero[parseInt(x)][parseInt(y)]"
+            />
+             <div class="input-group mb-3">
+         <div class="input-group-prepend">
+            <label class="input-group-text" for="inputGroupSelect01">1</label>
+          </div>
+         <select v-model="this.allBusZeroSelected[parseInt(x)][parseInt(y)]" class="custom-select" id="inputGroupSelect01">
+             <option selected>Choose...</option>
+             <option value="generator">Generator</option>
+             <option value="cable">Cable</option>
+             <option value="transformerDD">Transformer(Delta-Delta)</option>
+             <option value="transformerYYGround">Transformer(Wye-WyeGround)</option>
+             <option value="transformerYGroundYGround">Transformer(WyeGround-WyeGround)</option>
+             <option value="transformerYroundD">Transformer(WyeGround-Delta)</option>
+             <option value="transformerDY">Transformer(Delta-Wye)</option>
+         </select>
         </div>
-        <div v-else-if="selected[3] === 'cable'">
-          <img v-bind:src="imgCable" alt="">
-        </div>
-        <div v-else-if="selected[3] === 'transformer'">
-          <img v-bind:src="imgTransformer" alt="">
+          </div>
         </div>
       </div>
-    </div>
-     <div class="col-sm">
-      <h5>Bus 4</h5>
-      <div class="form-check">
-  <input v-model="selectedRadio" value="4" class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault5">
-  <label class="form-check-label" for="flexRadioDefault5">
-    Fault
-  </label>
-</div>
-    </div>
-    <div class="col-sm">
-      <div class="box">
-         <div v-if="selected[4] === 'generator'">
-          <img v-bind:src="imgGen" alt="">
-        </div>
-        <div v-else-if="selected[4] === 'cable'">
-          <img v-bind:src="imgCable" alt="">
-        </div>
-        <div v-else-if="selected[4] === 'transformer'">
-          <img v-bind:src="imgTransformer" alt="">
-        </div>
+       <!-- ****************************************************** -->
+       <!-- Recieving Zero Impedance for Generator -->
+      <div class="genBus" v-for="(n, x) in parseInt(this.totalBus)" :key="x">
+        <h5>Gen Bus 0-{{ x + 1 }}</h5>
+        <input type="Float" v-model="this.genBusZero[x]" />
+          <h5>Ground</h5>
+             <input
+              type="Float"
+              v-model="this.ground0[x]"
+            />
       </div>
+      <!-- ****************************************************** -->
+      <!-- Showing Y Bus result (Positive) -->
+      <h5>****** Y BUS Zero ******</h5>
+      <div class="input" v-for="(n, x) in parseInt(this.totalBus)" :key="x">
+        <h5>{{ this.yMetrixZero[x] }}</h5>
+        <h5>,length of array = {{ this.yMetrixZero[x].length }}</h5>
+      </div>
+      <h5>length of array = {{ this.yMetrixZero.length }}</h5>
+      <h5>*******************************************</h5>
+      <button @click="inverse()"><h5>Calculate Y inverse</h5></button>
+      <h5 id="title1"></h5>
+      <h5 id="view1"></h5>
+      <h5 id="title2"></h5>
+      <h5 id="view2"></h5>
+      <h5 id="title0"></h5>
+      <h5 id="view0"></h5>
     </div>
-     <div class="col-sm">
-      <h5>Bus 5</h5>
-      <div class="form-check">
-  <input v-model="selectedRadio" value="5" class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-  <label class="form-check-label" for="flexRadioDefault1">
-    Fault
-  </label>
-</div>
-    </div>
+    <!-- ****************************************************** -->
   </div>
-  <div class="input-group mb-3">
-  <div class="input-group-prepend">
-    <label class="input-group-text" for="inputGroupSelect01">1</label>
-  </div>
-  <select v-model="selected[0]" class="custom-select" id="inputGroupSelect01">
-    <option selected>Choose...</option>
-    <option value="generator">Generator</option>
-    <option value="cable">Cable</option>
-    <option value="transformer">Transformer</option>
-  </select>
-</div>
-<div class="input">
-<h5>X0</h5><input v-model="x[0][0]" type="Float">
-  <h5>X1</h5><input v-model="x[0][1]" type="Float">
-  <h5>X2</h5><input v-model="x[0][2]" type="Float">
-</div>
-<div class="input-group mb-3">
-  <div class="input-group-prepend">
-    <label class="input-group-text" for="inputGroupSelect01">2</label>
-  </div>
-  <select v-model="selected[1]" class="custom-select" id="inputGroupSelect01">
-    <option selected>Choose...</option>
-    <option value="generator">Generator</option>
-    <option value="cable">Cable</option>
-    <option value="transformer">Transformer</option>
-  </select>
-</div>
-<div class="input">
- <h5>X0</h5><input v-model="x[1][0]" type="Float">
-  <h5>X1</h5><input v-model="x[1][1]" type="Float">
-  <h5>X2</h5><input v-model="x[1][2]" type="Float">
-</div>
-<div class="input-group mb-3">
-  <div class="input-group-prepend">
-    <label class="input-group-text" for="inputGroupSelect01">3</label>
-  </div>
-  <select v-model="selected[2]" class="custom-select" id="inputGroupSelect01">
-    <option selected>Choose...</option>
-    <option value="generator">Generator</option>
-    <option value="cable">Cable</option>
-    <option value="transformer">Transformer</option>
-  </select>
-</div>
-<div class="input">
-  <h5>X0</h5><input v-model="x[2][0]" type="Float">
-  <h5>X1</h5><input v-model="x[2][1]" type="Float">
-  <h5>X2</h5><input v-model="x[2][2]" type="Float">
-</div>
-<div class="input-group mb-3">
-  <div class="input-group-prepend">
-    <label class="input-group-text" for="inputGroupSelect01">4</label>
-  </div>
-  <select v-model="selected[3]" class="custom-select" id="inputGroupSelect01">
-    <option selected>Choose...</option>
-    <option value="generator">Generator</option>
-    <option value="cable">Cable</option>
-    <option value="transformer">Transformer</option>
-  </select>
-</div>
-<div class="input">
-  <h5>X0</h5><input v-model="x[3][0]" type="Float">
-  <h5>X1</h5><input v-model="x[3][1]" type="Float">
-  <h5>X2</h5><input v-model="x[3][2]" type="Float">
-</div>
-<div class="input-group mb-3">
-  <div class="input-group-prepend">
-    <label class="input-group-text" for="inputGroupSelect01">5</label>
-  </div>
-  <select v-model="selected[4]" class="custom-select" id="inputGroupSelect01">
-    <option selected>Choose...</option>
-    <option value="generator">Generator</option>
-    <option value="cable">Cable</option>
-    <option value="transformer">Transformer</option>
-  </select>
-</div>
-<div class="input">
-  <h5>X0</h5><input v-model="x[4][0]" type="Float">
-  <h5>X1</h5><input v-model="x[4][1]" type="Float">
-  <h5>X2</h5><input v-model="x[4][2]" type="Float">
-</div>
-</div>
 </template>
 <script>
-const generatorUrl = require('../assets/img_generator.jpeg')
-const cableUrl = require('../assets/img_cable.jpeg')
-const transformerUrl = require('../assets/img_transformer.jpeg')
 const math = require('../../node_modules/mathjs/lib/browser/math')
 
 export default {
   name: 'ImgTools',
-  mounted() {
-  }, /* eslint-disable */
+  methods: {
+    inverse: function () {
+      // For Positive
+      document.getElementById('title1').innerHTML +=
+        'Y BUS (POSITIVE) INVERSED'
+      const A = math.inv(this.yMetrixPositive)
+      // Setting text in element
+      for (let i = 0; i < this.totalBus; i++) {
+        for (let j = 0; j < this.totalBus; j++) {
+          if (parseInt(j) === 0 && parseInt(i) === 0) {
+            document.getElementById('view1').innerHTML +=
+              '[' + '&nbsp;&nbsp;&nbsp;' + parseFloat(A[i][j]).toFixed(4) + ',' + '&nbsp;&nbsp;&nbsp;'
+          } else if (
+            parseInt(j) === parseInt(this.totalBus - 1) &&
+            parseInt(i) !== parseInt(this.totalBus - 1)
+          ) {
+            document.getElementById('view1').innerHTML +=
+              parseFloat(A[i][j]).toFixed(4) + '&nbsp;&nbsp;&nbsp;' + ']' + '[' + '&nbsp;&nbsp;&nbsp;'
+          } else if (
+            parseInt(j) === parseInt(this.totalBus - 1) &&
+            parseInt(i) === parseInt(this.totalBus - 1)
+          ) {
+            document.getElementById('view1').innerHTML +=
+              parseFloat(A[i][j]).toFixed(4) + '&nbsp;&nbsp;&nbsp;' + ']' + '<br/>'
+          } else {
+            document.getElementById('view1').innerHTML +=
+              parseFloat(A[i][j]).toFixed(4) + ',' + '&nbsp;&nbsp;&nbsp;'
+          }
+        }
+      }
+      // ******************************************************
+       // For Negative
+      document.getElementById('title2').innerHTML +=
+        'Y BUS (NEGATIVE) INVERSED'
+      const B = math.inv(this.yMetrixNegative)
+      // Setting text in element
+      for (let i = 0; i < this.totalBus; i++) {
+        for (let j = 0; j < this.totalBus; j++) {
+          if (parseInt(j) === 0 && parseInt(i) === 0) {
+            document.getElementById('view2').innerHTML +=
+              '[' + '&nbsp;&nbsp;&nbsp;' + parseFloat(B[i][j]).toFixed(4) + ',' + '&nbsp;&nbsp;&nbsp;'
+          } else if (
+            parseInt(j) === parseInt(this.totalBus - 1) &&
+            parseInt(i) !== parseInt(this.totalBus - 1)
+          ) {
+            document.getElementById('view2').innerHTML +=
+              parseFloat(B[i][j]).toFixed(4) + '&nbsp;&nbsp;&nbsp;' + ']' + '[' + '&nbsp;&nbsp;&nbsp;'
+          } else if (
+            parseInt(j) === parseInt(this.totalBus - 1) &&
+            parseInt(i) === parseInt(this.totalBus - 1)
+          ) {
+            document.getElementById('view2').innerHTML +=
+              parseFloat(B[i][j]).toFixed(4) + '&nbsp;&nbsp;&nbsp;' + ']' + '<br/>'
+          } else {
+            document.getElementById('view2').innerHTML +=
+              parseFloat(B[i][j]).toFixed(4) + ',' + '&nbsp;&nbsp;&nbsp;'
+          }
+        }
+      }
+      // ******************************************************
+       // For Zero
+      document.getElementById('title0').innerHTML +=
+        'Y BUS (ZERO) INVERSED'
+      const C = math.inv(this.yMetrixZero)
+      // Setting text in element
+      for (let i = 0; i < this.totalBus; i++) {
+        for (let j = 0; j < this.totalBus; j++) {
+          if (parseInt(j) === 0 && parseInt(i) === 0) {
+            document.getElementById('view0').innerHTML +=
+              '[' + '&nbsp;&nbsp;&nbsp;' + parseFloat(C[i][j]).toFixed(4) + ',' + '&nbsp;&nbsp;&nbsp;'
+          } else if (
+            parseInt(j) === parseInt(this.totalBus - 1) &&
+            parseInt(i) !== parseInt(this.totalBus - 1)
+          ) {
+            document.getElementById('view0').innerHTML +=
+              parseFloat(C[i][j]).toFixed(4) + '&nbsp;&nbsp;&nbsp;' + ']' + '[' + '&nbsp;&nbsp;&nbsp;'
+          } else if (
+            parseInt(j) === parseInt(this.totalBus - 1) &&
+            parseInt(i) === parseInt(this.totalBus - 1)
+          ) {
+            document.getElementById('view0').innerHTML +=
+              parseFloat(C[i][j]).toFixed(4) + '&nbsp;&nbsp;&nbsp;' + ']' + '<br/>'
+          } else {
+            document.getElementById('view0').innerHTML +=
+              parseFloat(C[i][j]).toFixed(4) + ',' + '&nbsp;&nbsp;&nbsp;'
+          }
+        }
+      }
+      // ******************************************************
+    }
+  },
+  mounted() {} /* eslint-disable */,
   data() {
     return {
-      selected: [null, null, null, null, null],
-      imgGen: generatorUrl,
-      imgCable: cableUrl,
-      imgTransformer: transformerUrl, 
-      x: [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]], 
-      rFault: 0,
-      selectedRadio: 0,
-      sBase: 0,
-      vBase: 0
-    }
+      totalBus: 0,
+      selected_to_show: false,
+      busPositive: [],
+      genBusPositive: [],
+      busNegative: [],
+      genBusNegative: [],
+      busZero: [],
+      genBusZero: [],
+      sBase:1,
+      vBase:1,
+      selected1: [],
+      selected2: [],
+      selected0: [],
+      ground1: [],
+      ground2: [],
+      ground0: [],
+    };
   },
   computed: {
-    rFaultPu: {
+    zBase: {
       get() {
-        let v = parseFloat(this.vBase)
-        let vv = math.pow(v,2)
-        let zBase = math.divide(vv,parseFloat(this.sBase))
-        let y = math.divide(parseFloat(this.rFault),zBase)
-        return y
-      }
+        let zBase = parseFloat((math.pow(this.vBase,2))/this.sBase)
+        return zBase;
+      },
     },
-    genPosition: {
+    allBusPositive: {
       get() {
-        let genPs = []
-        for(let i = 0; i < 5; i++) {
-          if (this.selected[i] === 'generator') {
-            genPs.push(i)
+        for (let i = 0; i < this.totalBus; i++) {
+          var newArray = [0];
+          newArray = [];
+          for (let j = 0; j <= i; j++) {
+            newArray.push(j);
           }
-         }
-        return genPs
-      }
+          this.busPositive.push(newArray);
+        }
+        return this.busPositive;
+      },
     },
-    largestNum: {
+    allBusPositiveSelected: {
       get() {
-        let largestN
-        for(let i = 0; i < this.genPosition.length; i ++) {
-          if(this.genPosition[i] < this.genPosition[i+1]) {
-            largestN = this.genPosition[i+1]
+        for (let i = 0; i < this.totalBus; i++) {
+          var newArray = [0];
+          newArray = [];
+          for (let j = 0; j <= i; j++) {
+            newArray.push(j);
+          }
+          this.selected1.push(newArray);
+        }
+        return this.selected1;
+      },
+    },
+    yMetrixPositive: {
+      get() {
+        var newArray1 = [0];
+        newArray1 = [];
+
+        for (let i = 0; i < this.totalBus; i++) {
+          var newArray2 = [0];
+          newArray2 = [];
+          for (let j = 0; j < this.totalBus; j++) {
+            if (i > j) {
+              var a = parseFloat(parseFloat(this.allBusPositive[i][j]))
+              if (parseFloat(a) === parseFloat(0)) {
+                newArray2.push(parseFloat(0));
+              } else {
+                newArray2.push(parseFloat(this.zBase / a).toFixed(4));
+              }
+            } else if (i < j) {
+              var b = parseFloat(parseFloat(this.allBusPositive[j][i]))
+              if (parseFloat(b) === parseFloat(0)) {
+                newArray2.push(parseFloat(0));
+              } else {
+                newArray2.push(parseFloat(this.zBase / b).toFixed(4));
+              }
+            } else if (i === j) {
+              var c = parseFloat(0).toFixed(4);
+              newArray2.push(c);
+            }
+          }
+          newArray1.push(newArray2);
+        }
+        // Case i = j
+        var d = 0;
+        for (let i = 0; i < newArray1.length; i++) {
+          for (let j = 0; j < newArray1.length; j++) {
+            d = parseFloat(newArray1[i][j]) + d;
+          }
+          newArray1[i][i] = -parseFloat(
+            d + parseFloat(this.busGenPositive[i])
+          ).toFixed(4);
+          d = 0;
+        }
+        return newArray1;
+      },
+    },
+    busGenPositive: {
+      get() {
+        var arrayA = [0];
+        arrayA = [];
+        for (let i = 0; i <= this.totalBus; i++) {
+          let a = this.genBusPositive[i];
+          if (parseFloat(a) === parseFloat(0)) {
+            arrayA.push(parseFloat(0).toFixed(4));
+          } else {
+            arrayA.push(parseFloat(this.zBase / this.genBusPositive[i]).toFixed(4));
           }
         }
-        return parseInt(largestN)
-      }
+        return arrayA;
+      },
     },
-     xTotalZero: {
-     get() {
-        let xTotal = 0
-        let xTotal1 = 0
-        let xTotal2 = 0
-        if(this.largestNum > this.selectedRadio) { // In case the system has more than two generators that the fault location is being between two of them
-        for(let i = 0; i < this.selectedRadio; i++) {
-          xTotal1 += parseFloat(this.x[i][0])
+    allBusNegative: {
+      get() {
+        for (let i = 0; i < this.totalBus; i++) {
+          var newArray = [0];
+          newArray = [];
+          for (let j = 0; j <= i; j++) {
+            newArray.push(j);
+          }
+          this.busNegative.push(newArray);
         }
-         for(let i = this.selectedRadio; i <= this.largestNum; i++) {
-          xTotal2 += parseFloat(this.x[i][0])
+        return this.busNegative;
+      },
+    },
+    allBusNegativeSelected: {
+      get() {
+        for (let i = 0; i < this.totalBus; i++) {
+          var newArray = [0];
+          newArray = [];
+          for (let j = 0; j <= i; j++) {
+            newArray.push(j);
+          }
+          this.selected2.push(newArray);
         }
-         xTotal = (parseFloat(xTotal1)*parseFloat(xTotal2))/(parseFloat(xTotal1)+parseFloat(xTotal2)) //sum resistor for each side in serie method, and after that sum both of them in parallel method
-         
-        }else { // In case the generator is situated before or after fault location
-          for(let i = 0; i < this.selectedRadio; i++) {
-          xTotal += parseFloat(this.x[i][0])
+        return this.selected2;
+      },
+    },
+    yMetrixNegative: {
+      get() {
+        var newArray1 = [0];
+        newArray1 = [];
+
+        for (let i = 0; i < this.totalBus; i++) {
+          var newArray2 = [0];
+          newArray2 = [];
+          for (let j = 0; j < this.totalBus; j++) {
+            if (i > j) {
+              var a = parseFloat(parseFloat(this.allBusNegative[i][j]))
+              if (parseFloat(a) === parseFloat(0)) {
+                newArray2.push(parseFloat(0));
+              } else {
+                newArray2.push(parseFloat(this.zBase / a).toFixed(2));
+              }
+            } else if (i < j) {
+              var b = parseFloat(parseFloat(this.allBusNegative[j][i]))
+              if (parseFloat(b) === parseFloat(0)) {
+                newArray2.push(parseFloat(0));
+              } else {
+                newArray2.push(parseFloat(this.zBase / b).toFixed(4));
+              }
+            } else if (i === j) {
+              var c = parseFloat(0).toFixed(4);
+              newArray2.push(c);
+            }
+          }
+          newArray1.push(newArray2);
         }
+        // Case i = j
+        var d = 0;
+        for (let i = 0; i < newArray1.length; i++) {
+          for (let j = 0; j < newArray1.length; j++) {
+            d = parseFloat(newArray1[i][j]) + d;
+          }
+          newArray1[i][i] = -parseFloat(
+            d + parseFloat(this.busGenNegative[i])
+          ).toFixed(4);
+          d = 0;
         }
-        return parseFloat(xTotal).toFixed(2)
-    }
+        return newArray1;
+      },
+    },
+    busGenNegative: {
+      get() {
+        var arrayA = [0];
+        arrayA = [];
+        for (let i = 0; i <= this.totalBus; i++) {
+          let a = this.genBusNegative[i];
+          if (parseFloat(a) === parseFloat(0)) {
+            arrayA.push(parseFloat(0).toFixed(4));
+          } else {
+            arrayA.push(parseFloat(this.zBase / this.genBusNegative[i]).toFixed(4));
+          }
+        }
+        return arrayA;
+      },
+    },
+    allBusZero: {
+      get() {
+        for (let i = 0; i < this.totalBus; i++) {
+          var newArray = [0];
+          newArray = [];
+          for (let j = 0; j <= i; j++) {
+            newArray.push(j);
+          }
+          this.busZero.push(newArray);
+        }
+        return this.busZero;
+      },
+    },
+     allBusZeroSelected: {
+      get() {
+        for (let i = 0; i < this.totalBus; i++) {
+          var newArray = [0];
+          newArray = [];
+          for (let j = 0; j <= i; j++) {
+            newArray.push(j);
+          }
+          this.selected0.push(newArray)
+        }
+        return this.selected0;
+      },
+    },
+    yMetrixZero: {
+      get() {
+        var newArray1 = [0];
+        newArray1 = [];
+
+        for (let i = 0; i < this.totalBus; i++) {
+          var newArray2 = [0];
+          newArray2 = [];
+          for (let j = 0; j < this.totalBus; j++) {
+            if (i > j) {
+              var a = parseFloat(parseFloat(this.allBusZero[i][j]))
+              if (parseFloat(a) === parseFloat(0)) {
+                newArray2.push(parseFloat(0));
+              } else {
+                newArray2.push(parseFloat(this.zBase / a).toFixed(4));
+              }
+            } else if (i < j) {
+              var b = parseFloat(parseFloat(this.allBusZero[j][i]))
+              if (parseFloat(b) === parseFloat(0)) {
+                newArray2.push(parseFloat(0));
+              } else {
+                newArray2.push(parseFloat(this.zBase / b).toFixed(4));
+              }
+            } else if (i === j) {
+              var c = parseFloat(0).toFixed(4);
+              newArray2.push(c);
+            }
+          }
+          newArray1.push(newArray2);
+        }
+        // Case i = j
+        var d = 0;
+        for (let i = 0; i < newArray1.length; i++) {
+          for (let j = 0; j < newArray1.length; j++) {
+            d = parseFloat(newArray1[i][j]) + d;
+          }
+          newArray1[i][i] = -parseFloat(
+            d + parseFloat(this.busGenZero[i])
+          ).toFixed(4);
+          d = 0;
+        }
+        return newArray1;
+      },
+    },
+    busGenZero: {
+      get() {
+        var arrayA = [0];
+        arrayA = [];
+        for (let i = 0; i <= this.totalBus; i++) {
+          let a = this.genBusZero[i];
+          if (parseFloat(a) === parseFloat(0)) {
+            arrayA.push(parseFloat(0).toFixed(4));
+          } else {
+            arrayA.push(parseFloat(this.zBase / this.genBusZero[i]).toFixed(4));
+          }
+        }
+        return arrayA;
+      },
+    },
   },
-    xTotalPositive: {
-     get() {
-        let xTotal = 0
-        let xTotal1 = 0
-        let xTotal2 = 0
-        if(this.largestNum > this.selectedRadio) { // In case the system has more than two generators that the fault location is being between two of them
-        for(let i = 0; i < this.selectedRadio; i++) {
-          xTotal1 += parseFloat(this.x[i][1])
-        }
-         for(let i = this.selectedRadio; i <= this.largestNum; i++) {
-          xTotal2 += parseFloat(this.x[i][1])
-        }
-         xTotal = (parseFloat(xTotal1)*parseFloat(xTotal2))/(parseFloat(xTotal1)+parseFloat(xTotal2)) //sum resistor for each side in serie method, and after that sum both of them in parallel method
-         
-        }else { // In case the generator is situated before or after fault location
-          for(let i = 0; i < this.selectedRadio; i++) {
-          xTotal += parseFloat(this.x[i][1])
-        }
-        }
-        return parseFloat(xTotal).toFixed(2)
-    }
-  },
-  xTotalNegative: {
-     get() {
-        let xTotal = 0
-        let xTotal1 = 0
-        let xTotal2 = 0
-        if(this.largestNum > this.selectedRadio) { // In case the system has more than two generators that the fault location is being between two of them
-        for(let i = 0; i < this.selectedRadio; i++) {
-          xTotal1 += parseFloat(this.x[i][2])
-        }
-         for(let i = this.selectedRadio; i <= this.largestNum; i++) {
-          xTotal2 += parseFloat(this.x[i][2])
-        }
-         xTotal = (parseFloat(xTotal1)*parseFloat(xTotal2))/(parseFloat(xTotal1)+parseFloat(xTotal2)) //sum resistor for each side in serie method, and after that sum both of them in parallel method
-         
-        }else { // In case the generator is situated before or after fault location
-          for(let i = 0; i < this.selectedRadio; i++) {
-          xTotal += parseFloat(this.x[i][2])
-        }
-        }
-        return parseFloat(xTotal).toFixed(2)
-    }
-  },
-  threePhaseFaultCurrent: {
-    get() {
-      let x = math.complex(parseFloat(this.rFaultPu),parseFloat(this.xTotalPositive))
-      let y = math.divide(1,x)
-      return `${parseFloat(y.re).toFixed(2)} ${parseFloat(y.im).toFixed(2)}i`
-    }
-  },
-    singleLineFaultCurrent: {
-    get() {
-      let complex =  parseFloat(this.xTotalZero)+parseFloat(this.xTotalPositive)+parseFloat(this.xTotalNegative)
-      let real = parseFloat(this.rFaultPu)*3
-      let x = math.complex(real,complex)
-      let y = math.divide(1,x)
-      return `${parseFloat(y.re).toFixed(2)} ${parseFloat(y.im).toFixed(2)}i`
-    }
-  },
-    linetoLineFaultCurrent: {
-    get() {
-      let complex = parseFloat(this.xTotalPositive)+parseFloat(this.xTotalNegative)
-      let real = parseFloat(this.rFaultPu)
-      let x = math.complex(real,complex)
-      let y = math.divide(1,x)
-      let yNeg = math.subtract(0,y)
-      return `${parseFloat(y.re).toFixed(2)} ${parseFloat(y.im).toFixed(2)}i pu ,I(2) = ${parseFloat(yNeg.re).toFixed(2)} ${parseFloat(yNeg.im).toFixed(2)}i pu`
-    }
-  },
-   doubleLineFaultCurrent: {
-    get() {
-     let r = math.complex(parseFloat(this.rFaultPu)*3,parseFloat(this.xTotalZero))  // R(fault) + X(zero)
-     let rNegative = math.complex(0,parseFloat(this.xTotalNegative))
-     let rr = math.multiply(r,rNegative)  //  (R(fault) + X(zero)) * X(negative)
-     let rrr = math.add(r,rNegative)  // (R(fault) + X(zero)) + X(negative)
-     let rparallel = math.divide(rr,rrr)
-     let rPositive = math.complex(0,parseFloat(this.xTotalPositive))
-     let x = math.add(rPositive,rparallel)
-     let y = math.divide(1,x)
-     let rSecond = math.divide(r,rrr)
-     let iSecond = math.multiply(rSecond,y)
-     let z = math.subtract(0,iSecond)
-     let rZero = math.divide(rNegative,rrr)
-     let iZero = math.multiply(rZero,y)
-     let zz = math.subtract(0,iZero)
-    return `${parseFloat(y.re).toFixed(2)} ${parseFloat(y.im).toFixed(2)}i pu ,I(2) = ${parseFloat(z.re).toFixed(2)} ${parseFloat(z.im).toFixed(2)}i pu ,I(0) = ${parseFloat(zz.re).toFixed(2)} ${parseFloat(zz.im).toFixed(2)}i pu`
-    }
-  }
-  }
-}
+};
 </script>
 <style>
-.box {
-  width: 150px;
-  height: 150px;
-  padding: 10px;
-  border: 5px solid gray;
-  margin: 0;
-  }
-  .input {
+.input {
   display: flex;
-  }
+}
+.genBus {
+  display: flex;
+}
 </style>
