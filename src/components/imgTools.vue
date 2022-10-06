@@ -28,7 +28,6 @@
           </div>
          <select v-model="this.allBusPositiveSelected[parseInt(x)][parseInt(y)]" class="custom-select" id="inputGroupSelect01">
              <option selected>Choose...</option>
-             <option value="generator">Generator</option>
              <option value="cable">Cable</option>
              <option value="transformerDD">Transformer(Delta-Delta)</option>
              <option value="transformerYYGround">Transformer(Wye-WyeGround)</option>
@@ -78,7 +77,6 @@
           </div>
          <select v-model="this.allBusNegativeSelected[parseInt(x)][parseInt(y)]" class="custom-select" id="inputGroupSelect01">
              <option selected>Choose...</option>
-             <option value="generator">Generator</option>
              <option value="cable">Cable</option>
              <option value="transformerDD">Transformer(Delta-Delta)</option>
              <option value="transformerYYGround">Transformer(Wye-WyeGround)</option>
@@ -128,7 +126,6 @@
           </div>
          <select v-model="this.allBusZeroSelected[parseInt(x)][parseInt(y)]" class="custom-select" id="inputGroupSelect01">
              <option selected>Choose...</option>
-             <option value="generator">Generator</option>
              <option value="cable">Cable</option>
              <option value="transformerDD">Transformer(Delta-Delta)</option>
              <option value="transformerYYGround">Transformer(Wye-WyeGround)</option>
@@ -152,7 +149,7 @@
             />
       </div>
       <!-- ****************************************************** -->
-      <!-- Showing Y Bus result (Positive) -->
+      <!-- Showing Y Bus result (Zero) -->
       <h5>****** Y BUS Zero ******</h5>
       <div class="input" v-for="(n, x) in parseInt(this.totalBus)" :key="x">
         <h5>{{ this.yMetrixZero[x] }}</h5>
@@ -502,14 +499,14 @@ export default {
           for (let j = 0; j < this.totalBus; j++) {
             if (i > j) {
               var a = parseFloat(parseFloat(this.allBusZero[i][j]))
-              if (parseFloat(a) === parseFloat(0)) {
+              if (parseFloat(a) === parseFloat(0) || this.allBusZeroSelected[i][j] === 'transformerDD' || this.allBusZeroSelected[i][j] === 'transformerYroundD' || this.allBusZeroSelected[i][j] === 'transformerDY' || this.allBusZeroSelected[i][j] === 'transformerYYGround') {
                 newArray2.push(parseFloat(0));
               } else {
-                newArray2.push(parseFloat(this.zBase / a).toFixed(4));
+                  newArray2.push(parseFloat(this.zBase / a).toFixed(4));
               }
             } else if (i < j) {
               var b = parseFloat(parseFloat(this.allBusZero[j][i]))
-              if (parseFloat(b) === parseFloat(0)) {
+              if (parseFloat(b) === parseFloat(0) || this.allBusZeroSelected[j][i] === 'transformerDD' || this.allBusZeroSelected[j][i] === 'transformerYroundD' || this.allBusZeroSelected[j][i] === 'transformerDY' || this.allBusZeroSelected[j][i] === 'transformerYYGround') {
                 newArray2.push(parseFloat(0));
               } else {
                 newArray2.push(parseFloat(this.zBase / b).toFixed(4));
@@ -544,7 +541,7 @@ export default {
           if (parseFloat(a) === parseFloat(0)) {
             arrayA.push(parseFloat(0).toFixed(4));
           } else {
-            arrayA.push(parseFloat(this.zBase / this.genBusZero[i]).toFixed(4));
+            arrayA.push(parseFloat(this.zBase / (this.genBusZero[i] + this.ground0[i])).toFixed(4));
           }
         }
         return arrayA;
