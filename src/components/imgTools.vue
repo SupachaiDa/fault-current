@@ -2,7 +2,7 @@
   <div>
     <!-- Enter the nuber of bus that the user want to calculate (INT Input) -->
     <h5>Excel file</h5>
-    <input type="file" />
+    <input type="file" /> <!-- Excel file -->
     <h5>Number of Bus (maximum 30 buses)</h5>
     <input type="Int" v-model="totalBus" />
      <!-- Enter Base Value -->
