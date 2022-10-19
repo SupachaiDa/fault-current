@@ -1,6 +1,8 @@
 <template>
   <div>
     <!-- Enter the nuber of bus that the user want to calculate (INT Input) -->
+    <h5>Excel file</h5>
+    <input type="file" />
     <h5>Number of Bus (maximum 30 buses)</h5>
     <input type="Int" v-model="totalBus" />
      <!-- Enter Base Value -->
@@ -29,6 +31,7 @@
          <select v-model="this.allBusPositiveSelected[parseInt(x)][parseInt(y)]" class="custom-select" id="inputGroupSelect01">
              <option selected>Choose...</option>
              <option value="cable">Cable</option>
+             <option value="transformerYY">Transformer(Wye-Wye)</option>
              <option value="transformerDD">Transformer(Delta-Delta)</option>
              <option value="transformerYYGround">Transformer(Wye-WyeGround)</option>
              <option value="transformerYGroundYGround">Transformer(WyeGround-WyeGround)</option>
@@ -55,9 +58,8 @@
       <h5>****** Y BUS Positive ******</h5>
       <div class="input" v-for="(n, x) in parseInt(this.totalBus)" :key="x">
         <h5>{{ this.yMetrixPositive[x] }}</h5>
-        <h5>,length of array = {{ this.yMetrixPositive[x].length }}</h5>
+        <h5>,</h5>
       </div>
-      <h5>length of array = {{ this.yMetrixPositive.length }}</h5>
       <h5>*******************************************</h5>
       <!-- ******************///////////************************* -->
       <!-- ******************///////////************************* -->
@@ -78,6 +80,7 @@
          <select v-model="this.allBusNegativeSelected[parseInt(x)][parseInt(y)]" class="custom-select" id="inputGroupSelect01">
              <option selected>Choose...</option>
              <option value="cable">Cable</option>
+             <option value="transformerYY">Transformer(Wye-Wye)</option>
              <option value="transformerDD">Transformer(Delta-Delta)</option>
              <option value="transformerYYGround">Transformer(Wye-WyeGround)</option>
              <option value="transformerYGroundYGround">Transformer(WyeGround-WyeGround)</option>
@@ -104,9 +107,8 @@
       <h5>****** Y BUS Negative ******</h5>
       <div class="input" v-for="(n, x) in parseInt(this.totalBus)" :key="x">
         <h5>{{ this.yMetrixNegative[x] }}</h5>
-        <h5>,length of array = {{ this.yMetrixNegative[x].length }}</h5>
+        <h5>,</h5>
       </div>
-      <h5>length of array = {{ this.yMetrixNegative.length }}</h5>
       <h5>*******************************************</h5>
       <!-- ******************///////////************************* -->
       <!-- ******************///////////************************* -->
@@ -127,6 +129,7 @@
          <select v-model="this.allBusZeroSelected[parseInt(x)][parseInt(y)]" class="custom-select" id="inputGroupSelect01">
              <option selected>Choose...</option>
              <option value="cable">Cable</option>
+             <option value="transformerYY">Transformer(Wye-Wye)</option>
              <option value="transformerDD">Transformer(Delta-Delta)</option>
              <option value="transformerYYGround">Transformer(Wye-WyeGround)</option>
              <option value="transformerYGroundYGround">Transformer(WyeGround-WyeGround)</option>
@@ -153,9 +156,8 @@
       <h5>****** Y BUS Zero ******</h5>
       <div class="input" v-for="(n, x) in parseInt(this.totalBus)" :key="x">
         <h5>{{ this.yMetrixZero[x] }}</h5>
-        <h5>,length of array = {{ this.yMetrixZero[x].length }}</h5>
+        <h5>,</h5>
       </div>
-      <h5>length of array = {{ this.yMetrixZero.length }}</h5>
       <h5>*******************************************</h5>
       <button @click="inverse()"><h5>Calculate Y inverse</h5></button>
       <h5 id="title1"></h5>
@@ -169,7 +171,9 @@
   </div>
 </template>
 <script>
+
 const math = require('../../node_modules/mathjs/lib/browser/math')
+// const XLSX = require('../../node_modules/xlsx/xlsx')
 
 export default {
   name: 'ImgTools',
@@ -196,7 +200,7 @@ export default {
             parseInt(i) === parseInt(this.totalBus - 1)
           ) {
             document.getElementById('view1').innerHTML +=
-              parseFloat(A[i][j]).toFixed(4) + '&nbsp;&nbsp;&nbsp;' + ']' + '<br/>'
+              parseFloat(A[i][j]).toFixed(4) + '&nbsp;&nbsp;&nbsp;' + '] |' + '<br/>'
           } else {
             document.getElementById('view1').innerHTML +=
               parseFloat(A[i][j]).toFixed(4) + ',' + '&nbsp;&nbsp;&nbsp;'
@@ -225,7 +229,7 @@ export default {
             parseInt(i) === parseInt(this.totalBus - 1)
           ) {
             document.getElementById('view2').innerHTML +=
-              parseFloat(B[i][j]).toFixed(4) + '&nbsp;&nbsp;&nbsp;' + ']' + '<br/>'
+              parseFloat(B[i][j]).toFixed(4) + '&nbsp;&nbsp;&nbsp;' + '] |' + '<br/>'
           } else {
             document.getElementById('view2').innerHTML +=
               parseFloat(B[i][j]).toFixed(4) + ',' + '&nbsp;&nbsp;&nbsp;'
@@ -254,7 +258,7 @@ export default {
             parseInt(i) === parseInt(this.totalBus - 1)
           ) {
             document.getElementById('view0').innerHTML +=
-              parseFloat(C[i][j]).toFixed(4) + '&nbsp;&nbsp;&nbsp;' + ']' + '<br/>'
+              parseFloat(C[i][j]).toFixed(4) + '&nbsp;&nbsp;&nbsp;' + '] |' + '<br/>'
           } else {
             document.getElementById('view0').innerHTML +=
               parseFloat(C[i][j]).toFixed(4) + ',' + '&nbsp;&nbsp;&nbsp;'
@@ -499,14 +503,14 @@ export default {
           for (let j = 0; j < this.totalBus; j++) {
             if (i > j) {
               var a = parseFloat(parseFloat(this.allBusZero[i][j]))
-              if (parseFloat(a) === parseFloat(0) || this.allBusZeroSelected[i][j] === 'transformerDD' || this.allBusZeroSelected[i][j] === 'transformerYroundD' || this.allBusZeroSelected[i][j] === 'transformerDY' || this.allBusZeroSelected[i][j] === 'transformerYYGround') {
+              if (parseFloat(a) === parseFloat(0) || this.allBusZeroSelected[i][j] === 'transformerDD' || this.allBusZeroSelected[i][j] === 'transformerYroundD' || this.allBusZeroSelected[i][j] === 'transformerDY' || this.allBusZeroSelected[i][j] === 'transformerYYGround' || this.allBusZeroSelected[i][j] === 'transformerYY') {
                 newArray2.push(parseFloat(0));
               } else {
                   newArray2.push(parseFloat(this.zBase / a).toFixed(4));
               }
             } else if (i < j) {
               var b = parseFloat(parseFloat(this.allBusZero[j][i]))
-              if (parseFloat(b) === parseFloat(0) || this.allBusZeroSelected[j][i] === 'transformerDD' || this.allBusZeroSelected[j][i] === 'transformerYroundD' || this.allBusZeroSelected[j][i] === 'transformerDY' || this.allBusZeroSelected[j][i] === 'transformerYYGround') {
+              if (parseFloat(b) === parseFloat(0) || this.allBusZeroSelected[j][i] === 'transformerDD' || this.allBusZeroSelected[j][i] === 'transformerYroundD' || this.allBusZeroSelected[j][i] === 'transformerDY' || this.allBusZeroSelected[j][i] === 'transformerYYGround' || this.allBusZeroSelected[j][i] === 'transformerYY') {
                 newArray2.push(parseFloat(0));
               } else {
                 newArray2.push(parseFloat(this.zBase / b).toFixed(4));
@@ -541,7 +545,7 @@ export default {
           if (parseFloat(a) === parseFloat(0)) {
             arrayA.push(parseFloat(0).toFixed(4));
           } else {
-            arrayA.push(parseFloat(this.zBase / (this.genBusZero[i] + this.ground0[i])).toFixed(4));
+            arrayA.push(parseFloat(this.zBase / (this.genBusZero[i] + this.ground0[i]*3/this.zBase)).toFixed(4));
           }
         }
         return arrayA;
